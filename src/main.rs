@@ -1,14 +1,13 @@
 fn main() {
-    let raw = match std::fs::read("/home/sargo/.config/bookmarks") {
+    let file = bytes_to_string(&match std::fs::read("/home/sargo/.config/bookmarks") {
         Ok(bytes) => bytes,
         Err(_) => panic!("No bookmark file found (~/.config/bookmarks)"),
-    };
+    });
 
     let mut dmenu_input = String::new();
     let mut map = std::collections::HashMap::new();
 
-    let raw_string = bytes_to_string(&raw);
-    for line in raw_string.split("\n") {
+    for line in file.split("\n") {
         let contents = match line.split_once("|") {
             Some(str) => str,
             None => continue,
@@ -22,7 +21,7 @@ fn main() {
     if let Some(output) = dmenu(dmenu_input.into()) {
         let output_as_string: String = bytes_to_string(&output);
         let end = match output_as_string.len() {
-            0 => return,
+            0 => std::process::exit(1),
             n => n,
         };
         let key = &output_as_string[0..end - 1];
