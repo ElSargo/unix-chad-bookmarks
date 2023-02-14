@@ -1,8 +1,9 @@
 fn main() {
-    let file = bytes_to_string(&match std::fs::read("/home/sargo/.config/bookmarks") {
-        Ok(bytes) => bytes,
-        Err(_) => panic!("No bookmark file found (~/.config/bookmarks)"),
-    });
+    let home_dir = dirs::home_dir().expect("Unable to read home dir");
+    let file = bytes_to_string(
+        &std::fs::read(format!("{}/.config/bookmarks", home_dir.display()))
+            .expect("No bookmark file found (~/.config/bookmarks)"),
+    );
 
     let mut dmenu_input = String::new();
     let mut map = std::collections::HashMap::new();
@@ -68,7 +69,8 @@ fn dmenu(input: Vec<u8>) -> Option<Vec<u8>> {
 fn run(cmd: &str) -> Option<Vec<u8>> {
     use std::process::{Command, Stdio};
     // Use the shell to run the commaand so we have acces to our config
-    let mut command = Command::new("fish");
+    let shell = std::env::var("SHELL").ok()?;
+    let mut command = Command::new(shell);
     command
         .arg("-c")
         .arg(cmd)
