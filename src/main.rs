@@ -5,7 +5,7 @@ fn main() {
             .expect("No bookmark file found (~/.config/bookmarks)"),
     );
 
-    let mut dmenu_input = String::new();
+    let mut wofi_input = String::new();
     let mut map = std::collections::HashMap::new();
 
     for line in file.split("\n") {
@@ -14,12 +14,12 @@ fn main() {
             None => continue,
         };
 
-        dmenu_input.push_str(contents.0);
-        dmenu_input.push_str("\n");
+        wofi_input.push_str(contents.0);
+        wofi_input.push_str("\n");
         map.insert(contents.0, contents.1);
     }
 
-    if let Some(output) = dmenu(dmenu_input.into()) {
+    if let Some(output) = wofi(wofi_input.into()) {
         let output_as_string: String = bytes_to_string(&output);
         let end = match output_as_string.len() {
             0 => std::process::exit(1),
@@ -35,20 +35,19 @@ fn bytes_to_string(o: &Vec<u8>) -> String {
     o.iter().map(|b| *b as char).collect()
 }
 
-/// Invoke dmenu, piping in the input and getting the output,
+/// Invoke wofi, piping in the input and getting the output,
 /// Returns None if any part of the proccess fails
-fn dmenu(input: Vec<u8>) -> Option<Vec<u8>> {
+fn wofi(input: Vec<u8>) -> Option<Vec<u8>> {
     use std::io::Write;
     use std::process::{Command, Stdio};
-    let mut dmenu = Command::new("dmenu");
-    dmenu
-        .arg("-l")
-        .arg("30")
+    let mut wofi = Command::new("wofi");
+    wofi.arg("--show")
+        .arg("dmenu")
         .arg("-p")
         .arg("Open")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped());
-    let mut child = match dmenu.spawn() {
+    let mut child = match wofi.spawn() {
         Ok(child) => child,
         _ => return None,
     };
