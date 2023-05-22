@@ -64,7 +64,7 @@ fn wofi(input: Vec<u8>) -> Option<Vec<u8>> {
     }
 }
 
-/// Run the command with the fish shell
+/// Run the command with the user shell
 fn run(cmd: &str) -> Option<Vec<u8>> {
     use std::process::{Command, Stdio};
     // Use the shell to run the commaand so we have acces to our config
