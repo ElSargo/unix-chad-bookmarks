@@ -1,9 +1,22 @@
+use std::env::args;
+
 fn main() {
-    let home_dir = dirs::home_dir().expect("Unable to read home dir");
-    let file = bytes_to_string(
-        &std::fs::read(format!("{}/.config/bookmarks", home_dir.display()))
-            .expect("No bookmark file found (~/.config/bookmarks)"),
-    );
+    let mut args = args().skip(1);
+    let path = match args.next() {
+        Some(path) => {
+            if path.starts_with("~") {
+                let home_dir = dirs::home_dir().expect("Unable to read home dir");
+                format!("{}{}", home_dir.display(), &path[1..path.len()])
+            } else {
+                path
+            }
+        }
+        None => {
+            let home_dir = dirs::home_dir().expect("Unable to read home dir");
+            format!("{}/.config/bookmarks", home_dir.display())
+        }
+    };
+    let file = bytes_to_string(&std::fs::read(path).expect("Bookmark file not found"));
 
     let mut wofi_input = String::new();
     let mut map = std::collections::HashMap::new();
